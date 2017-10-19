@@ -81,7 +81,6 @@ set(YARP_OS_HDRS include/yarp/os/AbstractCarrier.h
                  include/yarp/os/PortWriter.h
                  include/yarp/os/Property.h
                  include/yarp/os/Publisher.h
-                 include/yarp/os/Random.h
                  include/yarp/os/RateThread.h
                  include/yarp/os/RecursiveMutex.h
                  include/yarp/os/ResourceFinder.h
@@ -130,6 +129,10 @@ set(YARP_OS_HDRS include/yarp/os/AbstractCarrier.h
                  include/yarp/os/SystemInfo.h
                  include/yarp/os/SystemInfoSerializer.h
                  include/yarp/os/QosStyle.h)
+
+if(NOT YARP_NO_DEPRECATED)
+  list(APPEND YARP_OS_HDRS include/yarp/os/Random.h) # since YARP 2.3.72
+endif()
 
 set(YARP_OS_IDL_HDRS include/yarp/os/idl/BareStyle.h
                      include/yarp/os/idl/BottleStyle.h
@@ -305,7 +308,6 @@ set(YARP_OS_SRCS src/AbstractCarrier.cpp
                  src/PortWriter.cpp
                  src/Property.cpp
                  src/Protocol.cpp
-                 src/Random.cpp
                  src/RateThread.cpp
                  src/RecursiveMutex.cpp
                  src/ResourceFinder.cpp
@@ -363,7 +365,21 @@ set(YARP_OS_SRCS src/AbstractCarrier.cpp
                  src/sha2.c
                  src/QosStyle.cpp)
                  
-                 
+if(NOT YARP_NO_DEPRECATED)
+  set(YARP_OS_DEPRECATED_SRCS src/Random.cpp) # since YARP 2.3.72
+  list(APPEND YARP_OS_SRCS ${YARP_OS_DEPRECATED_SRCS})
+  if(MSVC)
+    set_source_files_properties(${YARP_OS_DEPRECATED_SRCS}
+                                PROPERTIES COMPILE_FLAGS "/wd4996")
+  else()
+    check_cxx_compiler_flag("-Wno-deprecated-declarations" CXX_HAS_WNO_DEPRECATED_DECLARATIONS)
+    if(CXX_HAS_WNO_DEPRECATED_DECLARATIONS)
+      set_source_files_properties(${YARP_OS_DEPRECATED_SRCS}
+                                  PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
+    endif()
+  endif()
+endif()
+
 if(APPLE)
   list(APPEND YARP_OS_IMPL_HDRS include/yarp/os/impl/MacOSAPI.h)
   list(APPEND YARP_OS_SRCS src/MacOSAPI.mm)

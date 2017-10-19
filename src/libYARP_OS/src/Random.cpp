@@ -3,6 +3,8 @@
  * CopyPolicy: Released under the terms of the LGPLv2.1 or later, see LGPL.TXT
  */
 
+#ifndef YARP_NO_DEPRECATED // Since YARP 2.3.72
+
 #include <yarp/os/Random.h>
 
 #include <cmath>
@@ -37,3 +39,5 @@ int Random::uniform(int min, int max) {
     std::uniform_int_distribution<int> udist(min, max);
     return udist(randengine);
 }
+
+#endif // YARP_NO_DEPRECATED

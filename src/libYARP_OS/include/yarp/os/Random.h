@@ -7,6 +7,8 @@
 #ifndef YARP_OS_RANDOM_H
 #define YARP_OS_RANDOM_H
 
+#ifndef YARP_NO_DEPRECATED // Since YARP 2.3.72
+
 #include <yarp/os/api.h>
 
 /**
@@ -26,7 +28,9 @@ namespace yarp {
  *
  * A collection of basic random number generation algorithms.
  */
-class YARP_OS_API yarp::os::Random {
+class YARP_OS_API YARP_OS_DEPRECATED_API_MSG("yarp::os::Random API is deprecated, use instead utilities from C++11's <random> lib") yarp::os::Random {
+
+
 public:
     /**
      * Generates a random number in the range 0 to 1.
@@ -63,5 +67,6 @@ public:
     static int uniform(int min, int max);
 };
 
+#endif // YARP_NO_DEPRECATED
 
 #endif // YARP_OS_RANDOM_H
