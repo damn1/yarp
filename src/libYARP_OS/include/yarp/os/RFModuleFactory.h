@@ -4,11 +4,27 @@
  * CopyPolicy: Released under the terms of the LGPLv2.1 or later, see LGPL.TXT
  */
 
+
 #include <yarp/os/RFModule.h>
 #include <string>
 
 namespace yarp {
 namespace os {
+
+class YARP_OS_API RFPlugin
+{
+    class RFPlugin_Private;
+    RFPlugin_Private* impl{nullptr};
+    
+
+public:
+
+    virtual bool open(const std::string& command);
+
+    virtual void close();
+
+    virtual bool isRunning();
+};
 
 class YARP_OS_API RFModuleFactory
 {
@@ -20,7 +36,7 @@ public:
 
     static RFModuleFactory& GetInstance();
     static void AddModule(const std::string& name, RFModule* module);
-    RFModule* GetModule(const std::string& name);
+    RFModule* GetModule(const std::string name);
 };
 
 }

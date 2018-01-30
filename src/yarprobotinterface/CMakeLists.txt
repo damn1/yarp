@@ -38,6 +38,7 @@ if(CREATE_YARPROBOTINTERFACE)
   set(yarprobotinterface_IDLS
       yarprobotinterface.thrift)
 
+
   include(YarpIDL)
   yarp_idl_to_dir(${yarprobotinterface_IDLS}
                   "${CMAKE_CURRENT_SOURCE_DIR}/idl_generated_code"
@@ -45,6 +46,34 @@ if(CREATE_YARPROBOTINTERFACE)
                   yarprobotinterface_IDLS_HDRS
                   yarprobotinterface_IDLS_INCLUDE_DIRS)
   include_directories("${yarprobotinterface_IDLS_INCLUDE_DIRS}")
+  
+  yarp_prepare_plugin(yarprobotinterface
+                      CATEGORY rfmodule
+                      TYPE RobotInterface::Module
+                      INCLUDE Module.h
+                      EXTRA_CONFIG CODE=""
+                      DEPENDS "CREATE_RFMODULE_LIBRARY_MODULES")
+  set(CMAKE_INCLUDE_CURRENT_DIR ON)
+  yarp_add_plugin(robotinterface     ${yarprobotinterface_SRCS}
+                                     ${yarprobotinterface_HDRS}
+                                     ${yarprobotinterface_IDLS_SRCS}
+                                     ${yarprobotinterface_IDLS_HDRS})
+  
+  target_link_libraries(robotinterface
+                        YARP::YARP_OS
+                        YARP::YARP_dev
+                        YARP::YARP_init
+                        ${TinyXML_LIBRARIES})
+
+  yarp_install(TARGETS robotinterface
+               EXPORT YARP
+               COMPONENT runtime
+               LIBRARY DESTINATION ${YARP_DYNAMIC_PLUGINS_INSTALL_DIR}
+               ARCHIVE DESTINATION ${YARP_STATIC_PLUGINS_INSTALL_DIR})
+  yarp_install(FILES yarprobotinterface.ini
+               COMPONENT runtime
+               DESTINATION ${YARP_PLUGIN_MANIFESTS_INSTALL_DIR})
+  set_property(TARGET robotinterface PROPERTY FOLDER "Plugins/RFModules")
 
   add_executable(yarprobotinterface ${yarprobotinterface_SRCS}
                                     ${yarprobotinterface_HDRS}

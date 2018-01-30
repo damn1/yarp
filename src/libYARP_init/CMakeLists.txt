@@ -44,6 +44,13 @@ if(YARP_LINK_PLUGINS)
         target_link_libraries(YARP_init PRIVATE YARP::yarpmod)
         target_link_libraries(YARP_init PRIVATE YARP::YARP_dev)
     endif()
+
+    if(CREATE_RFMODULE_LIBRARY_MODULES)
+        set_property(SOURCE src/CustomInit.cpp
+                     APPEND PROPERTY COMPILE_DEFINITIONS
+                     PLUGIN_INIT_FUNCTION3=add_yarprfmod_plugins)
+        target_link_libraries(YARP_init PRIVATE YARP::yarprfmod)
+    endif()
 endif()
 
 install(TARGETS YARP_init

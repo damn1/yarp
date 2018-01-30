@@ -39,11 +39,15 @@ add_subdirectory(devices)
 add_subdirectory(carriers)
 add_subdirectory(libYARP_init)
 
+option(CREATE_RFMODULE_LIBRARY_MODULES "compile rfmodule also as plugins" OFF)
+
 if(YARP_COMPILE_EXECUTABLES)
     # idl compilers (thrift and ros)
     add_subdirectory(idls)
 
     # executables
+
+    yarp_begin_plugin_library(yarprfmod)
     add_subdirectory(yarpserver)
     add_subdirectory(yarp)
     add_subdirectory(yarp-config)
@@ -54,6 +58,21 @@ if(YARP_COMPILE_EXECUTABLES)
     add_subdirectory(yarpmanager-console)
     add_subdirectory(yarplogger-console)
     add_subdirectory(yarpdatadumper)
+    yarp_end_plugin_library(yarprfmod)
+    
+    add_library(YARP::yarprfmod ALIAS yarprfmod)
+    install(TARGETS yarprfmod
+        EXPORT YARP
+        COMPONENT runtime
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+    if (YARP_LINK_PLUGINS)
+      set_property(GLOBAL APPEND PROPERTY YARP_LIBS yarprfmod ${yarprfmod_LIBRARIES})
+    endif()
+
+    set_property(TARGET yarprfmod PROPERTY FOLDER "Plugins/RFModules")
 
     # Qt5 GUIs
     add_subdirectory(yarpview)
