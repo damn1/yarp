@@ -96,6 +96,8 @@ set(YARP_OS_HDRS include/yarp/os/AbstractCarrier.h
                  include/yarp/os/RpcClient.h
                  include/yarp/os/RpcServer.h
                  include/yarp/os/Runnable.h
+                 include/yarp/os/RunnerClient.h
+                 include/yarp/os/RunnerServer.h
                  include/yarp/os/Searchable.h
                  include/yarp/os/Semaphore.h
                  include/yarp/os/SharedLibraryClassApi.h
@@ -188,6 +190,7 @@ set(YARP_OS_IMPL_HDRS include/yarp/os/impl/AuthHMAC.h
                       include/yarp/os/impl/PortManager.h
                       include/yarp/os/impl/Protocol.h
                       include/yarp/os/impl/Runnable.h
+                      include/yarp/os/impl/RunnerCommon.h
                       include/yarp/os/impl/SemaphoreImpl.h
                       include/yarp/os/impl/SocketTwoWayStream.h
                       include/yarp/os/impl/SplitString.h
@@ -296,6 +299,8 @@ set(YARP_OS_SRCS src/AbstractCarrier.cpp
                  src/RpcClient.cpp
                  src/RpcServer.cpp
                  src/Runnable.cpp
+                 src/RunnerClient.cpp
+                 src/RunnerServer.cpp
                  src/Searchable.cpp
                  src/Semaphore.cpp
                  src/SharedLibrary.cpp
