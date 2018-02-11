@@ -114,8 +114,41 @@ bool RunnerServer::start(string portName)
 
         else if (msg.check("ps") && callbacks.ps != nullptr)
         {
-            auto r = callbacks.ps();
-            rpc.reply(r);
+            yarp::os::Bottle ps, line, grp;
+            auto p = callbacks.ps();
+            for (auto& r : p)
+            {
+                line.clear();
+
+                grp.clear();
+                grp.addString("pid");
+                grp.addInt(r.pid);
+                line.addList()=grp;
+
+                grp.clear();
+                grp.addString("tag");
+                grp.addString(r.alias);
+                line.addList()=grp;
+
+                grp.clear();
+                grp.addString("status");
+                grp.addString(r.status?"running":"zombie");
+                line.addList()=grp;
+
+                grp.clear();
+                grp.addString("cmd");
+                grp.addString(r.cmd);
+                line.addList()=grp;
+
+                grp.clear();
+                grp.addString("env");
+                grp.addString(r.env);
+                line.addList()=grp;
+
+                ps.addList()=line;
+            }
+
+            rpc.reply(ps);
             continue;
         }
 

@@ -28,6 +28,15 @@ struct StdioData
     CmdData     cmdData;
 };
 
+struct PsData
+{
+    int         pid;
+    std::string alias;
+    bool        status;
+    std::string cmd;
+    std::string env;
+};
+
 }
 }
 }

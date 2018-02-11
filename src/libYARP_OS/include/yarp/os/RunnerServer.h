@@ -26,13 +26,14 @@ public:
 
 private:
     typedef std::string string;
-    typedef yarp::os::impl::runnercommon::CmdData CmdData;
+    typedef yarp::os::impl::runnercommon::CmdData   CmdData;
     typedef yarp::os::impl::runnercommon::StdioData StdioData;
+    typedef yarp::os::impl::runnercommon::PsData    PsData;
 
     typedef std::function<bool(const string& alias, int signal)> killClbk;
     typedef std::function<bool(const string& alias)>             sigtermClbk;
     typedef std::function<bool()>                                sigtermallClbk;
-    typedef std::function<yarp::os::Bottle()>                    psClbk;
+    typedef std::function<std::vector<PsData>()>                 psClbk;
     typedef std::function<bool(const string& alias)>             isRunningClbk;
     typedef std::function<bool(const string& alias)>             killstdioClbk;
     typedef std::function<yarp::os::SystemInfoSerializer()>      sysInfoClbk;
