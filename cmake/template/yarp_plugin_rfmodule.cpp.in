@@ -19,7 +19,7 @@
 
 #ifdef YARP_STATIC_PLUGIN
 YARP_PLUGIN_EXPORT void add_owned_@YARPPLUG_NAME@(const char *owner) {
-    yarp::os::RFModuleFactory::AddModule("@YARPPLUG_NAME@", new @YARPPLUG_TYPE@);
+    yarp::os::RFModuleFactory::AddModule("@YARPPLUG_NAME@", [](){return (RFModule*)new @YARPPLUG_TYPE@});
 }
 #endif
 

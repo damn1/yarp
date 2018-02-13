@@ -19,35 +19,72 @@ class RFModuleSelector : public YarpPluginSelector
     }
 };
 
-
-
-class RFPlugin::RFPlugin_Private
+struct SharedRFPlugin
 {
-public:
-    string                       name;
     YarpPlugin<RFModule>         yarpPlugin;
     SharedLibraryClass<RFModule> sharedLibClass;
     RFModuleSelector             selector;
-
 };
+
+struct RFPlugin::RFPlugin_Private
+{
+    RFPlugin_Private() = default;
+
+    string          alias;
+    string          name;
+    string          command;
+    int             threadID{0};
+    SharedRFPlugin* shared{nullptr};
+    
+    RFModule*       module{nullptr};
+    ~RFPlugin_Private()
+    {
+        delete shared;
+    }
+};
+
+RFPlugin::RFPlugin() :
+    impl(new RFPlugin_Private)
+{
+}
+
+RFPlugin::~RFPlugin()
+{
+    delete impl;
+}
+
+string RFPlugin::getCmd()
+{
+    return impl->command;
+}
+
+string RFPlugin::getAlias()
+{
+    return impl->alias;
+}
+
+int RFPlugin::getThreadKey()
+{
+    return impl->module->getThreadKey();
+}
 
 void RFPlugin::close()
 {
-    impl->sharedLibClass->stopModule();
+    impl->module->stopModule();
 }
 
 bool RFPlugin::isRunning()
 {
-    return !impl->sharedLibClass->isStopping();
+    return !impl->module->isStopping();
 }
 
-bool RFPlugin::open(const string& command)
+bool RFPlugin::open(const string& inCommand)
 {
     ResourceFinder     rf;
-    string name = command.substr(0, command.find(" "));
+    string name = inCommand.substr(0, inCommand.find(" "));
 
-    char* str = new char[command.size()];
-    memcpy(str, command.c_str(), command.size());
+    char* str = new char[inCommand.size()];
+    memcpy(str, inCommand.c_str(), inCommand.size());
 
     enum { kMaxArgs = 64 };
     int argc = 0;
@@ -61,7 +98,7 @@ bool RFPlugin::open(const string& command)
     }
     argv[argc] = 0;
 
-    
+    impl->command = inCommand;
     rf.configure(argc, argv);
     delete str;
 
@@ -71,8 +108,9 @@ bool RFPlugin::open(const string& command)
     {
         try
         {
-            if(staticmodule->configure(rf)) return false;
+            if(!staticmodule->configure(rf)) return false;
             staticmodule->runModuleThreaded();
+            impl->module = staticmodule;
             return true;
         }
         catch (...)
@@ -82,40 +120,41 @@ bool RFPlugin::open(const string& command)
     }
 
     YarpPluginSettings settings;
-    impl = new RFPlugin_Private;
+    impl->shared = new SharedRFPlugin;
     impl->name = name;
-    impl->selector.scan();
+    impl->shared->selector.scan();
 
     settings.setPluginName(impl->name);
     settings.setVerboseMode(true);
     
-    if (!settings.setSelector(impl->selector)) return false;
-    if (!impl->yarpPlugin.open(settings)) return false;
+    if (!settings.setSelector(impl->shared->selector)) return false;
+    if (!impl->shared->yarpPlugin.open(settings)) return false;
     
-    impl->sharedLibClass.open(*impl->yarpPlugin.getFactory());
+    impl->shared->sharedLibClass.open(*impl->shared->yarpPlugin.getFactory());
     
-    if (!impl->sharedLibClass.isValid()) return false;
+    if (!impl->shared->sharedLibClass.isValid()) return false;
     
-    settings.setLibraryMethodName(impl->yarpPlugin.getFactory()->getName(), settings.getMethodName());
-    settings.setClassInfo(impl->yarpPlugin.getFactory()->getClassName(), impl->yarpPlugin.getFactory()->getBaseClassName());
+    settings.setLibraryMethodName(impl->shared->yarpPlugin.getFactory()->getName(), settings.getMethodName());
+    settings.setClassInfo(impl->shared->yarpPlugin.getFactory()->getClassName(), impl->shared->yarpPlugin.getFactory()->getBaseClassName());
     
     try
     {
-        impl->sharedLibClass.getContent().configure(rf);
+        impl->shared->sharedLibClass.getContent().configure(rf);
     }
     catch ( ... )
     {
         return false;
     }
 
-    bool&& ret = impl->sharedLibClass->configure(rf);
-    if(ret) impl->sharedLibClass->runModuleThreaded();
+    bool&& ret = impl->shared->sharedLibClass->configure(rf);
+    if(ret) impl->shared->sharedLibClass->runModuleThreaded();
+    impl->module = &(impl->shared->sharedLibClass.getContent());
     return ret;
 }
 
 struct RFModuleFactory::Private
 {
-    map<string, RFModule*> delegates;
+    map<string, RFModule*(*)(void)> delegates;
 };
 
 RFModuleFactory::RFModuleFactory() : impl(new Private)
@@ -129,7 +168,7 @@ RFModuleFactory& RFModuleFactory::GetInstance()
     return instance;
 }
 
-void RFModuleFactory::AddModule(const string &name, RFModule* module)
+void RFModuleFactory::AddModule(const string &name, RFModule*(*module)(void))
 {
     GetInstance().impl->delegates[name] = module;
 }
@@ -138,7 +177,7 @@ RFModule* RFModuleFactory::GetModule(const string name)
 {
     if(impl->delegates.find(name) != impl->delegates.end())
     {
-        return impl->delegates[name];
+        return impl->delegates[name]();
     }
 
     return nullptr;
