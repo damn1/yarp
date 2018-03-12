@@ -3,7 +3,8 @@
  * Authors: Andrea Ruzzenenti <andrea.ruzzenenti@iit.it>
  * CopyPolicy: Released under the terms of the LGPLv2.1 or later, see LGPL.TXT
  */
-
+#ifndef YARP_OS_RFPLUGIN_H
+#define YARP_OS_RFPLUGIN_H
 
 #include <yarp/os/RFModule.h>
 #include <string>
@@ -49,3 +50,5 @@ public:
 
 }
 }
+
+#endif // YARP_OS_RFPLUGIN_H
