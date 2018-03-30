@@ -3,7 +3,8 @@
 * Authors: Andrea Ruzzenenti
 * CopyPolicy: Released under the terms of the LGPLv2.1 or later, see LGPL.TXT
 */
-
+#ifndef RUNNERCOMMON_H
+#define RUNNERCOMMON_H
 #include <vector>
 #include <string>
 namespace yarp {
@@ -41,3 +42,4 @@ struct PsData
 }
 }
 }
+#endif
