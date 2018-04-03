@@ -8,20 +8,30 @@
 #include <yarp/os/Network.h>
 using namespace std;
 using namespace yarp::os;
-bool RunnerClient::open(const string& local, const string& remote)
+bool RunnerClient::connect(const string& remote)
 {
     isValid = false;
     if (port.isOpen())port.close();
 
-    if (!port.open(local)) return false;
-    if (!yarp::os::Network::connect(local, remote)) return false;
+    if (!port.open("...")) return false;
+    if (!yarp::os::Network::connect(port.getName(), remote)) return false;
     
     isValid = true;
     return true;
 }
 
-bool RunnerClient::kill(const string& alias, int signal)
+void RunnerClient::disconnect()
 {
+    port.close();
+}
+
+RunnerClient::boolOutcome RunnerClient::kill(const string& alias, int signal, const std::string& remote)
+{
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     Property& killgrp = request.addGroup("kill");
 
     killgrp.put("alias", alias);
@@ -29,73 +39,118 @@ bool RunnerClient::kill(const string& alias, int signal)
     
     port.write(request, reply);
 
-    return reply.get(0).asString() == "kill OK";
+    return reply.get(0).asString() == "kill OK" ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 }
 
-bool RunnerClient::sigterm(const string& alias)
+RunnerClient::boolOutcome RunnerClient::sigterm(const string& alias, const std::string& remote)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     request.put("sigterm", alias);
 
     port.write(request, reply);
 
-    return reply.get(0).asString() == "sigterm OK";
+    return reply.get(0).asString() == "sigterm OK" ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 }
 
-bool RunnerClient::sigtermall()
+RunnerClient::boolOutcome RunnerClient::sigtermall(const std::string& remote)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     request.put("sigtermall", "");
     port.write(request, reply);
 
-    return reply.get(0).asString() == "sigtermall OK";
+    return reply.get(0).asString() == "sigtermall OK" ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 }
-Bottle RunnerClient::ps()
+RunnerClient::boolOutcome RunnerClient::ps(const std::string& remote, Bottle& output)
 {
-    Bottle psreply;
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
+    
     request.put("ps", "");
-    port.write(request, psreply);
+    port.write(request, output);
 
-    return psreply;
+    return RUNNER_RESULT_TRUE;
 }
 
-bool RunnerClient::isRunning(const string& alias)
+RunnerClient::boolOutcome RunnerClient::isRunning(const string& alias, const std::string& remote)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     request.put("ps", "");
     port.write(request, reply);
-    return reply.get(0).asString() == "running";
+    return reply.get(0).asString() == "running" ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 }
 
-bool RunnerClient::killstdio(const string& alias)
+RunnerClient::boolOutcome RunnerClient::killstdio(const string& alias, const std::string& remote)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     request.put("killstdio", alias);
     port.write(request, reply);
-    return reply.get(0).asString() == "running";
+    return reply.get(0).asString() == "running" ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 }
 
-SystemInfoSerializer RunnerClient::sysInfo()
+RunnerClient::boolOutcome RunnerClient::sysInfo(const std::string& remote, SystemInfoSerializer& output)
 {
-    yarp::os::SystemInfoSerializer sysreply;
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     request.put("sysinfo", "");
-    port.write(request, sysreply);
-    return sysreply;
+    port.write(request, output);
+    return RUNNER_RESULT_TRUE;
 }
 
-string RunnerClient::which(const string& alias)
+RunnerClient::boolOutcome RunnerClient::which(const string& alias, const std::string& remote, string& output)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     yarp::os::Value v;
     request.put("which", alias);
     port.write(request, v);
-    return v.asString();
+    output = v.asString();
+    return RUNNER_RESULT_TRUE;
 }
 
-bool RunnerClient::exit()
+RunnerClient::boolOutcome RunnerClient::exit(const std::string& remote)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     request.put("exit", "");
     port.write(request, reply);
-    return reply.get(0).asString() == "exit OK";
+    return reply.get(0).asString() == "exit OK" ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 }
 
-int RunnerClient::cmd(const CmdData& data, string& error)
+RunnerClient::boolOutcome RunnerClient::cmd(const CmdData& data, string& error, const std::string& remote)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     Property cmdB = request.addGroup("cmd");
     cmdB.fromArguments(data.cmd.c_str());
     request.put("alias", data.alias);
@@ -104,12 +159,17 @@ int RunnerClient::cmd(const CmdData& data, string& error)
     request.put("workdir", data.workdir);
     port.write(request, reply);
     error = reply.get(1).asString();
-    return reply.get(0).asInt();
+    return reply.get(0).asInt() == 0 ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 
 }
 
-Bottle RunnerClient::stdio(const StdioData& data)
+RunnerClient::boolOutcome RunnerClient::stdio(const StdioData& data, const std::string& remote, Bottle& output)
 {
+    if (connect(remote))
+    {
+        return RUNNER_RESULT_CONNECTION_ERROR;
+    }
+
     request.put("on", data.strOnPort);
     request.put("stdio", data.strOnPort);
     Property cmdB = request.addGroup("cmd");
@@ -118,6 +178,6 @@ Bottle RunnerClient::stdio(const StdioData& data)
     request.put("env", data.cmdData.env);
     if (data.cmdData.log) request.put("log", data.cmdData.loggerName);
     request.put("workdir", data.cmdData.workdir);
-    port.write(request, reply);
-    return reply;
+    port.write(request, output);
+    return RUNNER_RESULT_TRUE;
 }
