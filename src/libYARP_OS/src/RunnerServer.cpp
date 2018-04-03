@@ -215,3 +215,13 @@ bool RunnerServer::start(string portName)
 
     return 0;
 }
+
+bool RunnerServer::isOpen()
+{
+    return rpc.isOpen();
+}
+
+std::string RunnerServer::getPortname()
+{
+    return std::string(rpc.getName());
+}

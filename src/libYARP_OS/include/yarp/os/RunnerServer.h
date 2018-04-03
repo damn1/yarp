@@ -3,6 +3,8 @@
 * Authors: Andrea Ruzzenenti
 * CopyPolicy: Released under the terms of the LGPLv2.1 or later, see LGPL.TXT
 */
+#ifndef RUNNERSERVER_H
+#define RUNNERSERVER_H
 
 #include <functional>
 #include <string>
@@ -70,6 +72,8 @@ public:
 
     //blocking call
     bool start(std::string portName);
+    bool isOpen();              // tells if runner port is opened
+    std::string getPortname();  // tells on which port the runner is listening
 
     void setKill(const killClbk& clbk) {callbacks.kill = clbk;}
     void setSigterm(const sigtermClbk& clbk) {callbacks.sigterm = clbk;}
@@ -97,3 +101,5 @@ public:
     template<class T> void setStdio(stdioClbk clbk, T* instance)          {setStdio     (std::bind(clbk, instance, std::placeholders::_1));}
 
 };
+
+#endif // !RUNNERSERVER_H

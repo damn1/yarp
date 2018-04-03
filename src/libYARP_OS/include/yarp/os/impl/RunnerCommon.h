@@ -5,6 +5,7 @@
 */
 #ifndef RUNNERCOMMON_H
 #define RUNNERCOMMON_H
+
 #include <vector>
 #include <string>
 namespace yarp {
@@ -42,4 +43,6 @@ struct PsData
 }
 }
 }
-#endif
+
+#endif // !RUNNERCOMMON_H
+
