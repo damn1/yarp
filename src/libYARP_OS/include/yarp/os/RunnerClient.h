@@ -32,11 +32,11 @@ class YARP_OS_API yarp::os::RunnerClient
 
 public:
     
-    enum boolOutcome
+    enum RunnerResult
     {
-        RUNNER_RESULT_CONNECTION_ERROR,
+        RUNNER_RESULT_FALSE = 0,
         RUNNER_RESULT_TRUE,
-        RUNNER_RESULT_FALSE
+        RUNNER_RESULT_CONNECTION_ERROR
     };
     
     RunnerClient() = default;
@@ -47,44 +47,44 @@ public:
     * @param signal the signal to send to the application
     * @return true on success, false on failure
     */
-    boolOutcome kill(const std::string& alias, int signal, const std::string& remote);
+    RunnerResult kill(const std::string& alias, int signal, const std::string& remote);
     
     /**
     * send a  sigterm signal to the application.
     * @param alias the stringID of the application that will receive the signal
     * @return true on success, false on failure
     */
-    boolOutcome sigterm(const std::string& alias, const std::string& remote);
+    RunnerResult sigterm(const std::string& alias, const std::string& remote);
     
     /**
     * send a  sigterm signal to all open applications.
     * @return true on success, false on failure
     */
-    boolOutcome sigtermall(const std::string& remote);
+    RunnerResult sigtermall(const std::string& remote);
     
     /**
     * request a list of information for every application open
     * @return a bottle containing the data
     */
-    boolOutcome ps(const std::string& remote, yarp::os::Bottle& output);
+    RunnerResult ps(const std::string& remote, yarp::os::Bottle& output);
     
     /**
     * tells if an application is running
     * @param alias the stringID of the application that will receive the signal
     * @return true if it is running, false if not
     */
-    boolOutcome isRunning(const std::string& alias, const std::string& remote);
+    RunnerResult isRunning(const std::string& alias, const std::string& remote);
     
-    boolOutcome killstdio(const std::string& alias, const std::string& remote);
+    RunnerResult killstdio(const std::string& alias, const std::string& remote);
     
-    boolOutcome sysInfo(const std::string& remote, yarp::os::SystemInfoSerializer& output);
-    boolOutcome which(const std::string& alias, const std::string& remote, std::string& output);
+    RunnerResult sysInfo(const std::string& remote, yarp::os::SystemInfoSerializer& output);
+    RunnerResult which(const std::string& alias, const std::string& remote, std::string& output);
     
     /**
     * close the remote runner
     * @return true on success, false on failure
     */
-    boolOutcome exit(const std::string& remote);
+    RunnerResult exit(const std::string& remote);
     
     /**
     * asks to run an application
@@ -92,8 +92,8 @@ public:
     * @param error a string to receive an error on failure
     * @return 
     */
-    boolOutcome cmd(const CmdData& data, std::string& error, const std::string& remote);
+    RunnerResult cmd(const CmdData& data, std::string& error, const std::string& remote);
 
 
-    boolOutcome stdio(const StdioData& data, const std::string& remote, yarp::os::Bottle& output);
+    RunnerResult stdio(const StdioData& data, const std::string& remote, yarp::os::Bottle& output);
 };
