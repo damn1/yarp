@@ -60,7 +60,6 @@ int SocketTwoWayStream::open(const Contact& address) {
         result = connector.connect(stream, address, nullptr);
     }
 
-
 #endif
     if (result>=0) {
         happy = true;

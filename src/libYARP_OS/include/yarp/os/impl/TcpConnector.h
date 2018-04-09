@@ -8,7 +8,7 @@
 
 #ifndef YARP_OS_IMPL_TCPCONNECTOR_H
 #define YARP_OS_IMPL_TCPCONNECTOR_H
-
+#if 1 //if(not compile) put not __ORBIS__ instead of 1
 #if defined(YARP_HAS_ACE)
 #  include <ace/config.h>
 #  include <ace/SOCK_Connector.h>
@@ -31,5 +31,46 @@ typedef yarp::os::impl::posix::TcpConnector TcpConnector;
 } // namespace impl
 } // namespace os
 } // namespace yarp
+#elif 0 //if(not compile) put __ORBIS__ instead of 0
+#include <yarp/os/Contact.h>
+#include <yarp/os/impl/TcpStream.h>
+#include <yarp/os/impl/PlatformTime.h>
+
+
+namespace yarp {
+    namespace os {
+        namespace impl {
+            class TcpConnector;
+        }
+    }
+}
+
+/* **************************************************************************************
+ * Interface of TcpConnector
+ * **************************************************************************************/
+
+class yarp::os::impl::TcpConnector
+{
+public:
+    /**
+     * Constructor TcpConnector
+     */
+    TcpConnector();
+
+    /**
+     * Destructor ~TcpConnector
+     */
+    virtual ~TcpConnector();
+
+    int connect (TcpStream &new_stream,
+                 const yarp::os::Contact &remote_address,
+                 YARP_timeval* timeout = nullptr);
+protected:
+
+    int open(TcpStream &stream);
+private:
+
+};
+#endif
 
 #endif // YARP_OS_IMPL_TCPCONNECTOR_H
