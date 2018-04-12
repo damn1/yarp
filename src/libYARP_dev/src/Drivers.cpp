@@ -28,7 +28,7 @@
 using namespace yarp::os;
 using namespace yarp::dev;
 
-Drivers Drivers::instance;
+//Drivers Drivers::instance;
 
 class DriversHelper : public YarpPluginSelector {
 public:
