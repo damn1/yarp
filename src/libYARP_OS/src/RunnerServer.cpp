@@ -6,7 +6,7 @@
 
 #include <yarp/os/RunnerServer.h>
 #include <yarp/os/Os.h>
-#include <yarp/os/impl/RunCheckpoints.h>
+//#include <yarp/run/impl/RunCheckpoints.h>
 #include <yarp/os/impl/NameClient.h>
 #include <yarp/os/LogStream.h>
 #include <map>
@@ -30,9 +30,7 @@ bool RunnerServer::start(string portName)
     {
         Bottle msg;
 
-        RUNLOG("<<<port.read(msg, true)")
         if (!rpc.read(msg, true)) break;
-        RUNLOG(">>>port.read(msg, true)")
 
         // command with stdio management
         if (msg.check("stdio") && callbacks.stdio != nullptr)
