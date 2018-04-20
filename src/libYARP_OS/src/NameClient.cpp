@@ -299,15 +299,15 @@ Contact NameClient::extractAddress(const Bottle& bot)
     return Contact();
 }
 
-std::string NameClient::send(const std::string& cmd, bool multi)
+std::string NameClient::send(const std::string& cmd, bool multi, const ContactStyle style)
 {
     //printf("*** OLD YARP command %s\n", cmd.c_str());
     setup();
 
     if (NetworkBase::getQueryBypass()) {
-        ContactStyle style;
+        ContactStyle style2;
         Bottle bcmd(cmd.c_str()), reply;
-        NetworkBase::writeToNameServer(bcmd, reply, style);
+        NetworkBase::writeToNameServer(bcmd, reply, style2);
         std::string si = reply.toString(), so;
         for (int i = 0; i < (int)si.length(); i++) {
             if (si[i] != '\"') {
@@ -321,6 +321,10 @@ std::string NameClient::send(const std::string& cmd, bool multi)
     std::string result;
     Contact server = getAddress();
     float timeout = 10;
+    if (style.timeout > 0)
+    {
+        timeout = style.timeout;
+    }
     server.setTimeout(timeout);
 
     do {
