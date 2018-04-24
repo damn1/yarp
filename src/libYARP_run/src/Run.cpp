@@ -2100,6 +2100,7 @@ int yarp::run::Run::executeCmdStdout(yarp::os::Bottle& msg, yarp::os::Bottle& re
     }
 
     FlushFileBuffers(write_to_pipe_cmd_to_stdout);
+    portName = portName + "/" + std::to_string(stdout_process_info.dwProcessId);
 
     // EVERYTHING IS ALL RIGHT
     YarpRunCmdWithStdioInfo* pInf = new YarpRunCmdWithStdioInfo(strAlias,
@@ -3173,6 +3174,7 @@ int yarp::run::Run::executeCmdStdout(yarp::os::Bottle& msg, yarp::os::Bottle& re
             {
                 CLOSE(pipe_cmd_to_stdout[WRITE_TO_PIPE]);
                 CLOSE(pipe_child_to_parent[WRITE_TO_PIPE]);
+                portName += "/" + int2String(pid_cmd-1);
 
                 YarpRunCmdWithStdioInfo* pInf = new YarpRunCmdWithStdioInfo(
                         strAlias,
@@ -3232,6 +3234,7 @@ int yarp::run::Run::executeCmdStdout(yarp::os::Bottle& msg, yarp::os::Bottle& re
 
                 result.addInt(pid_cmd);
                 result.addString(out.c_str());
+                result.addString(portName.c_str());
 
                 fprintf(stderr, "%s", out.c_str());
 

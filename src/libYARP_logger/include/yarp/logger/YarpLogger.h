@@ -109,6 +109,10 @@ namespace yarp
 
 struct yarp::yarpLogger::MessageEntry
 {
+public:
+    MessageEntry() = default;
+    MessageEntry(const std::string& s);
+
     LogLevel      level;
     std::string   text;
     std::string   yarprun_timestamp;

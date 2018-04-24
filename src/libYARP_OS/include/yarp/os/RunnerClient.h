@@ -90,9 +90,11 @@ public:
     * asks to run an application
     * @param data a CmdData struct describing the application
     * @param error a string to receive an error on failure
+    * @param remote string with portname of remote machine to execute the command
+    * @param logPort string with portname of logger port opened by the remote, valorized with the reply from remote
     * @return 
     */
-    RunnerResult cmd(const CmdData& data, std::string& error, const std::string& remote);
+    RunnerResult cmd(const CmdData& data, std::string& error, const std::string& remote, std::string& logPort);
 
 
     RunnerResult stdio(const StdioData& data, const std::string& remote, yarp::os::Bottle& output);

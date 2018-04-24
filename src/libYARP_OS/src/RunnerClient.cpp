@@ -144,7 +144,7 @@ RunnerClient::RunnerResult RunnerClient::exit(const std::string& remote)
     return reply.get(0).asString() == "exit OK" ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 }
 
-RunnerClient::RunnerResult RunnerClient::cmd(const CmdData& data, string& error, const std::string& remote)
+RunnerClient::RunnerResult RunnerClient::cmd(const CmdData& data, string& error, const std::string& remote, string& logPort)
 {
     if (!connect(remote))
     {
@@ -157,7 +157,8 @@ RunnerClient::RunnerResult RunnerClient::cmd(const CmdData& data, string& error,
     if(data.log) request.put("log", data.loggerName);
     request.put("workdir", data.workdir);
     port.write(request, reply);
-    error = reply.get(1).asString();
+    error   = reply.get(1).asString();
+    logPort = reply.get(2).asString();
     return reply.get(0).asInt() == 0 ? RUNNER_RESULT_TRUE : RUNNER_RESULT_FALSE;
 
 }

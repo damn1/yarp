@@ -218,6 +218,38 @@ LoggerEngine::logger_thread::logger_thread (std::string _portname, int _rate,  i
         unknown_format_received      = 0;
 }
 
+std::string timeStampToHReadble(const time_t rawtime)
+{
+    struct tm * dt;
+    char buffer[30];
+    dt = localtime(&rawtime);
+    strftime(buffer, sizeof(buffer), "%H:%M:%S", dt);
+    return std::string(buffer);
+}
+
+MessageEntry::MessageEntry(const std::string& s)
+{
+    text              = s;
+    yarprun_timestamp = "";
+    local_timestamp   = timeStampToHReadble(yarp::os::Time::now());
+    level             = LOGLEVEL_UNDEFINED;
+
+    size_t str = s.find('[', 0);
+    size_t end = s.find(']', 0);
+
+    if (str == 0)
+    {
+        std::string l = s.substr(str, end + 1);
+        if      (l.find("TRACE")   != std::string::npos)   level = LOGLEVEL_TRACE;
+        else if (l.find("DEBUG")   != std::string::npos)   level = LOGLEVEL_DEBUG;
+        else if (l.find("INFO")    != std::string::npos)   level = LOGLEVEL_INFO;
+        else if (l.find("WARNING") != std::string::npos)   level = LOGLEVEL_WARNING;
+        else if (l.find("ERROR")   != std::string::npos)   level = LOGLEVEL_ERROR;
+        else if (l.find("FATAL")   != std::string::npos)   level = LOGLEVEL_FATAL;
+        text = s.substr(end + 1);
+    }
+}
+
 void LoggerEngine::logger_thread::run()
 {
     //if (is_discovering()==true)
