@@ -155,7 +155,7 @@ RunnerClient::RunnerResult RunnerClient::cmd(const CmdData& data, string& error,
     request.put("as", data.alias);
     request.put("env", data.env);
     if(data.log) request.put("log", data.loggerName);
-    request.put("workdir", data.workdir);
+    if(!data.workdir.empty() && data.workdir[0] != '\0') request.put("workdir", data.workdir);
     port.write(request, reply);
     error   = reply.get(1).asString();
     logPort = reply.get(2).asString();
